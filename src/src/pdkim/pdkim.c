@@ -1144,90 +1144,50 @@ pdkim_headcat(int * col, gstring * str,
   const uschar * pad, const uschar * intro, const uschar * payload)
 {
 size_t l;
+int space_after_pad = pad ? 1 : 0;
 
-if (pad)
+/* Can we fit at least the pad at the end of current line? Then do it now.*/
+if (pad && *col+Ustrlen(pad) <= 78)
   {
-  l = Ustrlen(pad);
-  if (*col + l > 78)
-    str = pdkim_hdr_cont(str, col);
-  str = string_catn(str, pad, l);
-  *col += l;
+  str = pdkim_headcat(col, str, NULL, NULL, pad);
+  pad = NULL;
   }
 
-l = (pad?1:0) + (intro?Ustrlen(intro):0);
-
-if (*col + l > 78)
-  { /*can't fit intro - start a new line to make room.*/
+/* Special case: if the whole addition does not fit at the end of the current
+ * line, but could fit on a new line, wrap to give it its full, dedicated line.
+ */
+l = (pad?Ustrlen(pad)+1:0) + (intro?Ustrlen(intro):0) + (payload?Ustrlen(payload):0);
+if (l <= 77 && *col+l > 78)
+  {
   str = pdkim_hdr_cont(str, col);
-  l = intro?Ustrlen(intro):0;
+  /* If pad was already put on the last line, we will have no use to space the
+   * intro. */
+  space_after_pad = 0;
   }
 
-l += payload ? Ustrlen(payload):0 ;
-
-while (l>77)
-  { /* this fragment will not fit on a single line */
-  if (pad)
+/* Else call us recursively with pad and intro as payloads: they will get the
+ * same, special treatment (that is, they'll get a chance not to be split if
+ * they are < 78).
+ */
+if (pad)
+  str = pdkim_headcat(col, str, NULL, NULL, pad);
+if (space_after_pad)
+  str = pdkim_headcat(col, str, NULL, NULL, US" ");
+if (intro)
+  str = pdkim_headcat(col, str, NULL, NULL, intro);
+if (payload)
+  {
+  l = Ustrlen(payload);
+  while (l)
     {
-    str = string_catn(str, US" ", 1);
-    *col += 1;
-    pad = NULL; /* only want this once */
-    l--;
-    }
-
-  if (intro)
-    {
-    size_t sl = Ustrlen(intro);
-
-    str = string_catn(str, intro, sl);
-    *col += sl;
-    l -= sl;
-    intro = NULL; /* only want this once */
-    }
-
-  if (payload)
-    {
-    size_t sl = Ustrlen(payload);
-    size_t chomp = *col+sl < 77 ? sl : 78-*col;
-
+    if (*col >= 78)
+      str = pdkim_hdr_cont(str, col);
+    size_t chomp = *col+l > 78 ? 78-*col : l;
     str = string_catn(str, payload, chomp);
     *col += chomp;
     payload += chomp;
-    l -= chomp-1;
+    l -= chomp;
     }
-
-  /* the while precondition tells us it didn't fit. */
-  str = pdkim_hdr_cont(str, col);
-  }
-
-if (*col + l > 78)
-  {
-  str = pdkim_hdr_cont(str, col);
-  pad = NULL;
-  }
-
-if (pad)
-  {
-  str = string_catn(str, US" ", 1);
-  *col += 1;
-  pad = NULL;
-  }
-
-if (intro)
-  {
-  size_t sl = Ustrlen(intro);
-
-  str = string_catn(str, intro, sl);
-  *col += sl;
-  l -= sl;
-  intro = NULL;
-  }
-
-if (payload)
-  {
-  size_t sl = Ustrlen(payload);
-
-  str = string_catn(str, payload, sl);
-  *col += sl;
   }
 
 return str;
