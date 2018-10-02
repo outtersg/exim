@@ -1,0 +1,15 @@
+# DKIM signing, 1536 bits key
+#
+exim -bd -DSERVER=server -DFAKE=test.dkim.dom.ain -oX PORT_D
+****
+#
+# We have to make the h= long enough so that the bh= starts on a new line, see https://bugs.exim.org/show_bug.cgi?id=2295
+exim -DSELECTOR=se1536 -DOPT=From:To:Subject:X-Something-To-Make-A-Long-H:X-And-So-On -odf c@test.ex
+From: nobody@example.com
+
+content
+****
+#
+millisleep 500
+killdaemon
+no_msglog_check
