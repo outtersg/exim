@@ -329,7 +329,7 @@ int domainlen = Ustrlen(domain);
 BOOL pass_on_not_found = FALSE;
 tlist *typeptr;
 uschar *pk = *pkptr;
-uschar buffer[256];
+uschar buffer[512];
 uschar rrdomain[256];
 uschar RRdomain[256];
 
@@ -538,7 +538,15 @@ while (fgets(CS buffer, sizeof(buffer), f) != NULL)
     case ns_t_txt:
       pp = pk++;
       if (*p == '"') p++;   /* Should always be the case */
-      while (*p != 0 && *p != '"') *pk++ = *p++;
+      while (*p != 0 && *p != '"')
+        {
+          *pk++ = *p++;
+          if (pk > pp + 0xff)
+            {
+              *pp = pk - pp - 1;
+              pp = pk++;
+            }
+        }
       *pp = pk - pp - 1;
       break;
 
