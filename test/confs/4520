@@ -54,6 +54,7 @@ send_to_server:
 				ses=dkim512.private \
 				sel=dkim.private \
 				sed=dkim_ed25519.private \
+				se1536=dkim1536.private \
 				}{DDIR/$value}}
 
 .ifndef HEADERS_MAXSIZE

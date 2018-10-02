@@ -572,6 +572,8 @@ ses_sha256._domainkey TXT "v=DKIM1; h=sha256; p=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJB
 sel2._domainkey TXT "v=spf1 mx a include:spf.nl2go.com -all"
 sel2._domainkey TXT "v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDXRFf+VhT+lCgFhhSkinZKcFNeRzjYdW8vT29Rbb3NadvTFwAd+cVLPFwZL8H5tUD/7JbUPqNTCPxmpgIL+V5T4tEZMorHatvvUM2qfcpQ45IfsZ+YdhbIiAslHCpy4xNxIR3zylgqRUF4+Dtsaqy3a5LhwMiKCLrnzhXk1F1hxwIDAQAB"
 
+se1536._domainkey TXT "v=DKIM1; k=rsa; p=MIHfMA0GCSqGSIb3DQEBAQUAA4HNADCByQKBwQCku34LEY05Dmg6hoiERiPlxzbcsUo+3w80fEINn509ihxeNx9hML1Ijo96SSevZVpOldMq3Fjx9lgnYUwX0K9Li0FLvMIUDv1gFloH7g0Kp9FLF04ngZ7EGiq3sVw5W80du3+/dNExrUmD9l0rmlfTmQR7a2IOvilrHvVcA3oJahB9zG0X+K2mArsEmCB8o4nYNW2Rmf3a9TU8kpQ4XGzPK9nVpCIxhb+l9gkaGRS0kKNFC3fjD4TnUL57yUAEWO0CAwEAAQ=="
+
 ; EC signing, using Ed25519
 ; - needs GnuTLS 3.6.0 (fedora rawhide has that)
 ;           certtool --generate-privkey --key-type=ed25519 --outfile=dkim_ed25519.private
